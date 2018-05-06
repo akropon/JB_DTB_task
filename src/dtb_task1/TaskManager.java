@@ -5,23 +5,49 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
+/**
+ * Менеджер задач.
+ * 
+ * Хранит в себе Общую очередь задач.
+ * Распределяет задачи из общей очереди по Исполнителям по принципу
+ *   наименьшей загруженности.
+ * 
+ * @author akropon
+ */
 public class TaskManager extends Thread{
+    /** 
+     * Notificator - объект для синхронизации и  уведомления потока данного класса
+     */ 
     public final Object notificator = new Object();
+    
+    /**
+     * флаг "неизменности состояния очередей Исполнителей"
+     */
     public boolean someExecutorTookNewTask;
     
     private final LinkedList<Runnable> _commonTaskQueue = new LinkedList<>();
     private final ArrayList<Executor> _executors = new ArrayList<>();
     private boolean _mayWork = true;
 
+    /**
+     * Добавить еще один Исполнитель.
+     * Добавлять исполнители можно только перед стартом потока.
+     * 
+     * @param executor - Исполнитель
+     * @return - true, если успешно, false, если Исполнитель добавлен не был.
+     */
     public boolean addExecutor(Executor executor) {
         if (this.getState() == Thread.State.NEW) {
             _executors.add(executor);
-            return true;
+            return true; 
         } else
             return false;
     }
 
-    
+    /**
+     * Уведомить поток о том, что пора завершиться
+     */
     public void needToEnd(/*boolean waitForExecutingAllTasks*/) {
         synchronized(notificator) {
             _mayWork = false;
@@ -29,6 +55,9 @@ public class TaskManager extends Thread{
         }
     }
 
+    /**
+     * Код исполнения потока Менеджера задач
+     */
     @Override
     public void run() {
         double minFullness;
@@ -97,18 +126,34 @@ public class TaskManager extends Thread{
             }
         }
         
-        System.out.println("TaskManager (thread="+Thread.currentThread().getId()+"): Завершаюсь.");
+        // debug
+        // System.out.println("TaskManager (thread="+Thread.currentThread().getId()+"): Завершаюсь.");
         
     }
 
+    /**
+     * Получить список Исполнителей
+     * 
+     * @return список Исполнителей
+     */
     public ArrayList<Executor> getExecutors() {
         return _executors;
     }
 
+    /**
+     * Получить Общую очередь задач
+     * 
+     * @return Общая очередь задач
+     */
     public LinkedList<Runnable> getCommonTaskQueue() {
         return _commonTaskQueue;
     }
     
+    /**
+     * Метод для добавления новой задачи в Общую очередь из внешнего потока
+     * 
+     * @param task - задача
+     */
     public void addTask(Runnable task) {
         synchronized (notificator) {
             _commonTaskQueue.addLast(task);

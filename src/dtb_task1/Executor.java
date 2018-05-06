@@ -3,21 +3,42 @@ package dtb_task1;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Класс Исполнителя.
+ * 
+ * Хранит в себе очередь задач.
+ * Исполняет задачи по одной, забирая их из очереди задач.
+ * 
+ * @author akropon
+ */
 public class Executor extends Thread{
     private final TaskManager _taskManager;
     private final LimitedQueue<Runnable> _taskQueue;
     private boolean _mayWork;
     
+    /**
+     * Конструктор 
+     * 
+     * @param taskManager - Менеджер задач
+     * @param queueSize - максимальный размер прикрепленной очереди задач Исполнителя
+     */
     public Executor(TaskManager taskManager, int queueSize) {
         _taskManager = taskManager;
         _taskQueue = new LimitedQueue<>(Runnable.class, queueSize);
         _mayWork = true;
     }
 
+    /**
+     * Получить Очередь задач Исполнителя
+     * @return 
+     */
     public LimitedQueue<Runnable> getTaskQueue() {
         return _taskQueue;
     }
     
+    /**
+     * Уведомить потом Исполнителя о том, что пора завершаться
+     */
     public void needToEnd() {
         synchronized(_taskQueue) {
             _mayWork = false;
@@ -25,6 +46,9 @@ public class Executor extends Thread{
         }
     }
     
+    /**
+     * Код исполнения потока Исполнителя
+     */
     @Override
     public void run() {
         Runnable task;
@@ -57,7 +81,8 @@ public class Executor extends Thread{
             }
         } 
         
-        System.out.println("Executor (thread="+Thread.currentThread().getId()+"): Завершаюсь.");
+        //debug
+        //System.out.println("Executor (thread="+Thread.currentThread().getId()+"): Завершаюсь.");
     }
     
 }
