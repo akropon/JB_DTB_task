@@ -14,16 +14,6 @@ public class Executor extends Thread{
         _mayWork = true;
     }
 
-    
-//    public boolean addTask(Runnable task) {
-//        if (_taskQueue.isFull())
-//            return false;
-//        else {
-//            _taskQueue.putElement(task);
-//            return true;
-//        }
-//    }
-
     public LimitedQueue<Runnable> getTaskQueue() {
         return _taskQueue;
     }

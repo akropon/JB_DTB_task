@@ -12,8 +12,6 @@ public class TaskManager extends Thread{
     private final LinkedList<Runnable> _commonTaskQueue = new LinkedList<>();
     private final ArrayList<Executor> _executors = new ArrayList<>();
     private boolean _mayWork = true;
-    //private boolean _waitForExecutingAllTasks = false;
-    //private int _terminationExecutorsTimeoutMillis = 1000;
 
     public boolean addExecutor(Executor executor) {
         if (this.getState() == Thread.State.NEW) {
@@ -23,13 +21,9 @@ public class TaskManager extends Thread{
             return false;
     }
 
-//    public void setTerminationExecutorsTimeoutMillis(int millis) {
-//        this._terminationExecutorsTimeoutMillis = millis;
-//    }
     
     public void needToEnd(/*boolean waitForExecutingAllTasks*/) {
         synchronized(notificator) {
-//            _waitForExecutingAllTasks = waitForExecutingAllTasks;
             _mayWork = false;
             notificator.notifyAll();
         }
